@@ -7,7 +7,7 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import jdk.jfr.Description;
-import org.json.JSONArray;
+import org.apache.commons.lang3.ObjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -49,24 +49,77 @@ public class PlaySmokeTests {
 
         Random r = new Random();
         int initialValue = r.nextInt(9);
-        System.out.println(initialValue);
         response = ticTacToeAPI.gameMarkSquareAPI(requestSpec, sessionId, token, initialValue);
-        JSONArray array = new JSONArray(response.asString());
-        Assert.assertTrue(validateMove(array, initialValue));
+        String[][] boardLayout = response.as(String[][].class);
+        Assert.assertTrue(validateMove(boardLayout, initialValue));
 
         response = ticTacToeAPI.gameGetState(requestSpec, sessionId, token);
         Assert.assertEquals(response.jsonPath().get("status"), Constants.IN_PROGRESS);
     }
 
-    public boolean validateMove(JSONArray array, int moveMade) {
-        boolean value = false;
+    // This test will occasionally fail due to the Draw bug in the API
+    @Description("Make moves to complete a game of tic-tac-toe and assert results to assert the correct move and status")
+    @Test(groups = { "smoke" })
+    public void testCompletedTicTacToeGame() {
+        String testUser = "test@test.com";
+
+        response = ticTacToeAPI.gameLoginAPI(requestSpec, testUser);
+        String sessionId = response.jsonPath().get("session_id");
+
+        response = ticTacToeAPI.gameCreateAPI(requestSpec, sessionId);
+        String token = response.jsonPath().get("token");
+
+        Random r = new Random();
+        String[][] boardLayout = {};
+        int initialValue = r.nextInt(9);
+        for (int i=0; i<9; i++) {
+            response = ticTacToeAPI.gameMarkSquareAPI(requestSpec, sessionId, token, initialValue);
+            boardLayout = response.as(String[][].class);
+            Assert.assertTrue(validateMove(boardLayout, initialValue), "expected " + initialValue);
+            initialValue = findNewMove(boardLayout);
+            if (checkGameState(sessionId, token)) {
+                break;
+            }
+        }
+
+        response = ticTacToeAPI.gameGetState(requestSpec, sessionId, token);
+        Assert.assertNotEquals(response.jsonPath().get("status"), Constants.IN_PROGRESS);
+    }
+
+    public boolean checkGameState(String sessionId, String token) {
+        boolean gameState = false;
+        response = ticTacToeAPI.gameGetState(requestSpec, sessionId, token);
+        response.prettyPrint();
+        if (!response.jsonPath().get("status").equals(Constants.IN_PROGRESS)) {
+            gameState = true;
+        }
+        return gameState;
+    }
+
+    public int findNewMove(String[][] array) {
         int moveCount = 0;
+        outerloop:
         for (int i=0; i<3; i++) {
             for (int j=0; j<3; j++) {
-                if (array.getJSONArray(i).get(j).equals("x")) {
+                if (ObjectUtils.compare(array[i][j], null) == 0) {
+                    break outerloop;
+                }
+                moveCount++;
+            }
+        }
+        return moveCount;
+    }
+
+    public boolean validateMove(String[][] array, int moveMade) {
+        boolean value = false;
+        int moveCount = 0;
+        outerloop:
+        for (int i=0; i<3; i++) {
+            for (int j=0; j<3; j++) {
+                if (ObjectUtils.compare(array[i][j], null) == 1 && ObjectUtils.compare(array[i][j].toLowerCase(), "x") == 0) {
                     if (moveCount == moveMade) {
                         value = true;
-                        break;
+                        break outerloop;
                     }
                 }
                 moveCount++;
