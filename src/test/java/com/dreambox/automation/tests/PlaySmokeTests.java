@@ -99,9 +99,9 @@ public class PlaySmokeTests {
     public int findNewMove(String[][] array) {
         int moveCount = 0;
         outerloop:
-        for (int i=0; i<3; i++) {
-            for (int j=0; j<3; j++) {
-                if (ObjectUtils.compare(array[i][j], null) == 0) {
+        for (String[] n : array) {
+            for (String q : n) {
+                if (ObjectUtils.compare(q, null) == 0) {
                     break outerloop;
                 }
                 moveCount++;
@@ -114,9 +114,9 @@ public class PlaySmokeTests {
         boolean value = false;
         int moveCount = 0;
         outerloop:
-        for (int i=0; i<3; i++) {
-            for (int j=0; j<3; j++) {
-                if (ObjectUtils.compare(array[i][j], null) == 1 && ObjectUtils.compare(array[i][j].toLowerCase(), "x") == 0) {
+        for (String[] n : array) {
+            for (String q : n) {
+                if (ObjectUtils.compare(q, null) == 1 && ObjectUtils.compare(q.toLowerCase(), "x") == 0) {
                     if (moveCount == moveMade) {
                         value = true;
                         break outerloop;
