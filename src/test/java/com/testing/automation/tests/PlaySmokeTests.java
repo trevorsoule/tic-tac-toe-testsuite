@@ -1,7 +1,7 @@
-package com.dreambox.automation.tests;
+package com.testing.automation.tests;
 
-import com.dreambox.automation.resources.Constants;
-import com.dreambox.automation.service.TicTacToeAPI;
+import com.testing.automation.resources.Constants;
+import com.testing.automation.service.TicTacToeAPI;
 import io.restassured.authentication.PreemptiveBasicAuthScheme;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.response.Response;

@@ -1,6 +1,6 @@
-package com.dreambox.automation.utils;
+package com.testing.automation.utils;
 
-import com.dreambox.automation.resources.Constants;
+import com.testing.automation.resources.Constants;
 
 public class UrlBuilder implements Constants {
 

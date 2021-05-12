@@ -1,6 +1,6 @@
-package com.dreambox.automation.service;
+package com.testing.automation.service;
 
-import com.dreambox.automation.utils.UrlBuilder;
+import com.testing.automation.utils.UrlBuilder;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
